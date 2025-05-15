@@ -2,6 +2,7 @@
 using MicroservicePlatfrom.DataTransferObject;
 using MicroservicePlatfrom.Models;
 using MicroservicePlatfrom.Repositories;
+using MicroservicePlatfrom.SyncDataServices.HTTP;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MicroservicePlatfrom.Controllers
@@ -12,10 +13,13 @@ namespace MicroservicePlatfrom.Controllers
     {
         private readonly IPlatformRepo _repository;
         private readonly IMapper _mapper;
-        public PlatformController(IPlatformRepo repository, IMapper mapper)
+        private readonly ICommandDataClient _commandDataClient;
+
+        public PlatformController(IPlatformRepo repository, IMapper mapper, ICommandDataClient commandDataClient)
         {
             _repository = repository;
             _mapper = mapper;
+            _commandDataClient = commandDataClient;
         }
 
         [HttpGet]

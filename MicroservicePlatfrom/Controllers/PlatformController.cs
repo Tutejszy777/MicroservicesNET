@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using System.Threading.Tasks;
+using AutoMapper;
 using MicroservicePlatfrom.DataTransferObject;
 using MicroservicePlatfrom.Models;
 using MicroservicePlatfrom.Repositories;
@@ -45,13 +47,22 @@ namespace MicroservicePlatfrom.Controllers
         }
 
         [HttpPost]
-        public ActionResult<PlatformReadDto> CreatePlatform(PlatformCreateDto platformCreate)
+        public async Task<ActionResult<PlatformReadDto>> CreatePlatform(PlatformCreateDto platformCreate)
         {
             var platform = _mapper.Map<Platform>(platformCreate);
             _repository.CreatePlatform(platform);
             _repository.SaveChanges();
 
             var plarformRead = _mapper.Map<PlatformReadDto>(platform);
+
+            try
+            {
+                await _commandDataClient.SendPlatformToCommand(plarformRead);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"--> Could not send synchronously to CommandService: {ex.Message}");
+            }
 
             return CreatedAtRoute(nameof(GetPlatformById), new { Id = plarformRead.Id }, plarformRead);
         }
